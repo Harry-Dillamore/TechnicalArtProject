@@ -1,0 +1,39 @@
+# Advanced Material Systems - Harry Dillamore
+
+## Stylized Water Material with World Position Offset
+
+| **Requirement** |  **Description / Implementation** | **Evidence** |
+| ----------- | -------------- | --------- |
+| **World Position Offset** | The world position offset is used to deform the vertices of an object , this can be used for the water to create waves on the surface. In the material graph, I implemented the WPO effect by using panning textures which use the `texCoord` and an adjustable `scale` parameter as input to the textures' UVs to move across the the material. I have used two textures so there is some distortion on a macro scale using a noise texture and a waves on a larger scale using an appropriate texture. I have allowed adjustment using the parameters for scale, speed, and size for each the large waves and the small waves. These parameters adjust: the scale of the texture used for WPO, the speed at which the texture is panned, and the size - in height - of the waves. | ![Wireframe view of water](20251031-1704-21.4433165.gif) ![WPO water material graph](image-6.png) |
+| **Visual Elements - Foam** | Foam is generated dynamically based on proximity to objects in the water. The implementation relies on the `DistanceToNearestSurface` node, which calculates how far any pixel on the water's surface is from any other geometry. This distance is used to create a "distance field," allowing the `FoamDist` parameter to control how far the foam extends from an edge. To create the foam's rippling appearance, a wave is generated using `Time` and a `Sine` node. The effect is adjusted by the `FoamSpeed` and `FoamLines` parameters which allow more customisation of the speed and size of the foam waves. finally, panning noise textures are used - one micro and one macro - which break up the lines for a more natural appearance. | ![Demo of cube affecting foam](20251031-2100-32.1047222.gif) ![Material graph for foam](image-7.png) |
+| **Visual Elements - Normals** | To add fine, high - frequency detail to the water surface, two separate normal maps are used which simulate small waves and distortion on the surface of the water. I use the `blendAngleCorrectedNormals` node to combine the two normal map textures. The direction that the normal maps pan in is controlled by `windDirection` and the speed of the panning is controlled by `wind`. These are MPC parameters which can be changed by the user or in blueprints during runtime. The direction is normalised and multiplied by the wind amount, then used for the panning of each normal map. | ![Demo of wind speed and direction 1](20251031-2151-57.2325389.gif) ![Demo of wind speed and direction 2](20251031-2155-03.4017996.gif) ![Normal map material Graph](image-8.png) |
+
+
+
+![alt text](20251031-1655-53.5006650.gif)
+
+*Figure X - Final water material*
+
+## Post Processing
+
+## Cel Shading Effect
+
+![Cel Shader graph (1)](image.png)
+
+*Figure X - Cel Shading material graph*
+
+![Cel Shader graph (2)](image-1.png)
+
+*Figure X - Cel Shading material graph*
+
+This cel shading setup is good because it allows me to apply the cel shaded effect to any object I want to by simply toggling the render CustomDepthPass option, avoiding making multiple 
+
+![alt text](image-2.png)
+
+*Figure X - White light compared to red light using cel shading*
+
+![alt text](image-3.png)
+
+*Figure X - White light compared to red light using new cel shading logic*
+
+---

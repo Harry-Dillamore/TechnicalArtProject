@@ -23,11 +23,17 @@
 | **Requirement**| **Description / Implementation** | **Evidence**|
 | --- | --- | --- |
 | **POM Implementation** | POM is used to fake 3D detail on a flat surface. It is able to create a much more convincing 3D effect compared to normal maps and similar. It does this by using raymarching across the texture to find the visible depth of each pixel, this allows self shadowing and parallax effects to function. For example, parts of the texture that are high up occlude the lower points behind them. In the material graph I use the `ParallaxOcclusionMapping` inputting the heightmap of the texture I am using and the `TexCoord` node - the parallax UV output is then used to go into the UV input of each texture used. I have made parameters for most of the other inputs to the `ParallaxOcclusionMapping` to allow customisation of the level of detail of the effect.  | ![POM material Vs regular material](image-17.png) <br> [POM material Graph](image-18.png) |
-| Quality Performance and Limitations | The level of detail is mainly controlled by the `MinSteps` and `MaxSteps`
+| **Quality Performance and Limitations** | A balance has to be found when using POM as it is much more demanding than a regular material. This is because each pixel has to be processed multiple times, whereas a normal texture only checks onece, The level of detail is mainly controlled by the `MinSteps` and `MaxSteps` the number of steps refers to how many checks are done to find the correct depth of each pixel. Each check essentially sees if the raymarch has hit the surface yet. the effect is very convincing when veiwed from the front and used on flat surfaces. However, the sillhouette of the geometry remains a hard edge, meaning that if the object has the edges visable, it can look broken and much less effective. |  |
 
 <https://fab.com/s/de31b726d9df>
 
 ## Cel Shading Effect
+
+| **Requirement**| **Description / Implementation** | **Evidence**|
+| --- | --- | --- |
+| **Post Process Setup** | Because this is a post process material, it acts as a filter over the scene. To ensure that this happens correctly, the `material domain` is set to `post process` and the `blendable location` is set to `after tonemapping`. <br> The effect is not applied automatically to everything because it works better with some objects compared to others, and being able to cusomtise what is cel shaded allows for a better final look to the scene. To do this, a mask is created by compareing `SceneDepth` with `CustomDepth` so that only objects with `RenderCustomDepthPass` enabled with have the effect applied. |  |
+| **Lighting Effect** | The cel shaded look is created by forcing bands of light rather than a smooth gradient. To do this, I take the `SceneTexture:PostProcessInput0` and desatruate it to get only the brightness. I take this value and multiply it by the number of bands wanted, then used the `floor` node to remove and decimal places, and finally divide by the number of bands. I have also made the `CelShadingBands` an MPC parameter so that it can be adjusted from there. |  |
+| **Colour and Composition** | The post proccess effect functioned correctly but did not support any coloured lighting, meaning that all light was being rendered as white. If this fit the look of the game, it could be left like this as a stylistic choice, but for my scene I wanted the ability to display coloured lighting. I found that the solution was to get normalized value of the final `SceneColour`, add the `CelShadingMinBrightness` (to avoid pure blacks) and multiply this with the black and white shadow bands. This means that there can be gradients of colour within the bands of light. |  |
 
 ![Cel Shader graph (1)](image.png)
 
